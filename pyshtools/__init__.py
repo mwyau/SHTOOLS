@@ -62,6 +62,8 @@ from .shclasses import SHWindow
 from .shclasses import Slepian
 from .shclasses import SHGravCoeffs
 from .shclasses import SHMagCoeffs
+from .shclasses import SHVectorGrid
+from .shclasses import SHVectorCoeffs
 
 try:
     __version__ = version('pyshtools')
@@ -75,4 +77,4 @@ __author__ = 'SHTOOLS developers'
 __all__ = ['constants', 'shclasses', 'legendre', 'expand', 'shio', 'shtools',
            'spectralanalysis', 'rotate', 'gravmag', 'utils', 'backends',
            'SHCoeffs', 'SHGrid', 'SHWindow', 'Slepian', 'SHGravCoeffs',
-           'SHMagCoeffs', 'datasets']
+           'SHMagCoeffs', 'SHVectorGrid', 'SHVectorCoeffs', 'datasets']

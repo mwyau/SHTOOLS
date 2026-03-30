@@ -46,13 +46,13 @@ class SHGradient(object):
                     instance.
     """
 
-    def __init__(self, theta, phi, lmax, lmax_calc, units=None,
+    def __init__(self, theta, phi, lmax, lmax_calc, grid='DH', units=None,
                  pot_units=None, epoch=None, name=None):
         """
         Initialize the SHGradient class.
         """
-        self.theta = _SHGrid.from_array(theta, grid='DH', units=units)
-        self.phi = _SHGrid.from_array(phi, grid='DH', units=units)
+        self.theta = _SHGrid.from_array(theta, grid=grid, units=units)
+        self.phi = _SHGrid.from_array(phi, grid=grid, units=units)
         self.grid = self.theta.grid
         self.sampling = self.theta.sampling
         self.nlat = self.theta.nlat

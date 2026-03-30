@@ -2294,7 +2294,8 @@ class SHCoeffs(object):
             True if lat, colat and lon are in degrees, False if in radians.
         grid : str, optional, default = 'DH2'
             'DH' or 'DH1' for an equisampled lat/lon grid with nlat=nlon,
-            'DH2' for an equidistant lat/lon grid with nlon=2*nlat, or 'GLQ'
+            'DH2' for an equidistant lat/lon grid with nlon=2*nlat, 'CC'
+            for a Clenshaw-Curtis grid with nlon=2*(nlat-1), or 'GLQ'
             for a Gauss-Legendre quadrature grid.
         lmax : int, optional, default = x.lmax
             The maximum spherical harmonic degree, which determines the grid
@@ -2373,6 +2374,11 @@ class SHCoeffs(object):
                                          lmax_calc=lmax_calc, extend=extend,
                                          backend=backend, nthreads=nthreads,
                                          name=name)
+            elif grid.upper() == 'CC':
+                gridout = self._expandCC(lmax=lmax,
+                                         lmax_calc=lmax_calc, extend=extend,
+                                         backend=backend, nthreads=nthreads,
+                                         name=name)
             elif grid.upper() == 'GLQ':
                 gridout = self._expandGLQ(zeros=zeros, lmax=lmax,
                                           lmax_calc=lmax_calc, extend=extend,
@@ -2380,7 +2386,7 @@ class SHCoeffs(object):
                                           name=name)
             else:
                 raise ValueError(
-                    "grid must be 'DH', 'DH1', 'DH2', or 'GLQ'. " +
+                    "grid must be 'DH', 'DH1', 'DH2', 'CC' or 'GLQ'. " +
                     "Input value is {:s}.".format(repr(grid)))
 
             return gridout
@@ -2406,7 +2412,8 @@ class SHCoeffs(object):
         ----------
         grid : str, optional, default = 'DH2'
             'DH' or 'DH1' for an equisampled lat/lon grid with nlat=nlon, or
-            'DH2' for an equidistant lat/lon grid with nlon=2*nlat.
+            'DH2' for an equidistant lat/lon grid with nlon=2*nlat. 'CC' for a
+            Clenshaw-Curtis grid with nlon=2*(nlat-1).
         lmax : int, optional, default = x.lmax
             The maximum spherical harmonic degree, which determines the grid
             spacing of the output grid.
@@ -2459,12 +2466,88 @@ class SHCoeffs(object):
         elif grid.upper() == 'GLQ':
             raise NotImplementedError('gradient() does not support the use '
                                       'of GLQ grids.')
+        elif grid.upper() == 'CC':
+            gradientout = self._gradientCC(lmax=lmax, lmax_calc=lmax_calc,
+                                           units=units, extend=extend,
+                                           radius=radius, backend=backend,
+                                           nthreads=nthreads, name=name)
         else:
             raise ValueError(
-                    "grid must be 'DH', 'DH1', or 'DH2'. " +
+                    "grid must be 'DH', 'DH1', 'DH2' or 'CC'. " +
                     "Input value is {:s}.".format(repr(grid)))
 
         return gradientout
+
+    def gradient_vector(self, radius=None):
+        """
+        Compute the horizontal gradient of the function and return an
+        SHVectorCoeffs class instance.
+
+        Usage
+        -----
+        v = x.gradient_vector([radius])
+
+        Returns
+        -------
+        v : SHVectorCoeffs class instance
+
+        Parameters
+        ----------
+        radius : float, optional, default = 1.0
+            The radius of the sphere used when computing the gradient of the
+            function.
+        """
+        from .shvector import SHVectorCoeffs
+        if radius is None:
+            radius = 1.0
+
+        lmax = self.lmax
+        l = _np.arange(lmax + 1)
+        scale = _np.sqrt(l * (l + 1)) / radius
+
+        coeffs_e = self.copy()
+        for l in range(1, lmax + 1):
+            coeffs_e.coeffs[:, l, :l+1] *= scale[l]
+
+        coeffs_b = self.copy()
+        coeffs_b.coeffs[:] = 0.0
+
+        return SHVectorCoeffs(coeffs_e, coeffs_b, a=radius)
+
+    def streamfunction_vector(self, radius=None):
+        """
+        Compute the vector field from the streamfunction and return an
+        SHVectorCoeffs class instance.
+
+        Usage
+        -----
+        v = x.streamfunction_vector([radius])
+
+        Returns
+        -------
+        v : SHVectorCoeffs class instance
+
+        Parameters
+        ----------
+        radius : float, optional, default = 1.0
+            The radius of the sphere used when computing the vector field.
+        """
+        from .shvector import SHVectorCoeffs
+        if radius is None:
+            radius = 1.0
+
+        lmax = self.lmax
+        l = _np.arange(lmax + 1)
+        scale = _np.sqrt(l * (l + 1)) / radius
+
+        coeffs_b = self.copy()
+        for l in range(1, lmax + 1):
+            coeffs_b.coeffs[:, l, :l+1] *= scale[l]
+
+        coeffs_e = self.copy()
+        coeffs_e.coeffs[:] = 0.0
+
+        return SHVectorCoeffs(coeffs_e, coeffs_b, a=radius)
 
     # ---- Plotting routines ----
     def plot_spectrum(self, convention='power', unit='per_l', base=10.,
@@ -4349,6 +4432,31 @@ class SHRealCoeffs(SHCoeffs):
                                     copy=False, name=name)
         return gridout
 
+    def _expandCC(self, lmax, lmax_calc, extend, backend, nthreads, name):
+        """Evaluate the coefficients on a Clenshaw-Curtis grid."""
+        from .shgrid import SHGrid
+        if self.normalization == '4pi':
+            norm = 1
+        elif self.normalization == 'schmidt':
+            norm = 2
+        elif self.normalization == 'unnorm':
+            norm = 3
+        elif self.normalization == 'ortho':
+            norm = 4
+        else:
+            raise ValueError(
+                "Normalization must be '4pi', 'ortho', 'schmidt', or " +
+                "'unnorm'. Input value is {:s}."
+                .format(repr(self.normalization)))
+
+        data = backend_module(
+            backend=backend, nthreads=nthreads).MakeGridCC(
+                self.coeffs, norm=norm, csphase=self.csphase, lmax=lmax,
+                lmax_calc=lmax_calc, extend=extend)
+        gridout = SHGrid.from_array(data, grid='CC', units=self.units,
+                                    copy=False, name=name)
+        return gridout
+
     def _expandGLQ(self, zeros, lmax, lmax_calc, extend, backend, nthreads,
                    name):
         """Evaluate the coefficients on a Gauss Legendre quadrature grid."""
@@ -4445,7 +4553,23 @@ class SHRealCoeffs(SHCoeffs):
                     sampling=sampling, lmax=lmax,
                     lmax_calc=lmax_calc, extend=extend, radius=radius)
 
-        return SHGradient(theta, phi, lmax, lmax_calc, units=units, name=name)
+        return SHGradient(theta, phi, lmax, lmax_calc, grid='DH', units=units,
+                          name=name)
+
+    def _gradientCC(self, lmax, lmax_calc, units, extend, radius,
+                    backend, nthreads, name):
+        """Evaluate the gradient on a Clenshaw-Curtis grid."""
+        from .shgradient import SHGradient
+
+        res = backend_module(
+                backend=backend, nthreads=nthreads).MakeGradientCC(
+                    self.to_array(
+                        normalization='4pi', csphase=1, errors=False),
+                    lmax=lmax, lmax_calc=lmax_calc, extend=extend,
+                    radius=radius)
+
+        return SHGradient(res[0], res[1], lmax, lmax_calc, grid='CC',
+                          units=units, name=name)
 
 
 # =============== COMPLEX SPHERICAL HARMONICS ================
@@ -4643,6 +4767,31 @@ class SHComplexCoeffs(SHCoeffs):
                                     copy=False, name=name)
         return gridout
 
+    def _expandCC(self, lmax, lmax_calc, extend, backend, nthreads, name):
+        """Evaluate the coefficients on a Clenshaw-Curtis grid."""
+        from .shgrid import SHGrid
+        if self.normalization == '4pi':
+            norm = 1
+        elif self.normalization == 'schmidt':
+            norm = 2
+        elif self.normalization == 'unnorm':
+            norm = 3
+        elif self.normalization == 'ortho':
+            norm = 4
+        else:
+            raise ValueError(
+                "Normalization must be '4pi', 'ortho', 'schmidt', or " +
+                "'unnorm'. Input value is {:s}."
+                .format(repr(self.normalization)))
+
+        data = backend_module(
+                backend=backend, nthreads=nthreads).MakeGridCCC(
+                    self.coeffs, norm=norm, csphase=self.csphase, lmax=lmax,
+                    lmax_calc=lmax_calc, extend=extend)
+        gridout = SHGrid.from_array(data, grid='CC', units=self.units,
+                                    copy=False, name=name)
+        return gridout
+
     def _expandGLQ(self, zeros, lmax, lmax_calc, extend, backend, nthreads,
                    name):
         """Evaluate the coefficients on a Gauss-Legendre quadrature grid."""
@@ -4728,7 +4877,14 @@ class SHComplexCoeffs(SHCoeffs):
                              'Input types are {:s} and {:s}.'
                              .format(repr(type(lat)), repr(type(lon))))
 
-    def _gradientDH(self, sampling, lmax, lmax_calc, units, extend, name):
+    def _gradientDH(self, sampling, lmax, lmax_calc, units, extend, radius,
+                    backend, nthreads, name):
         """Evaluate the gradient on a Driscoll and Healy (1994) grid."""
         raise NotImplementedError('gradient() does not support the use '
                                   'of complex DH grids.')
+
+    def _gradientCC(self, lmax, lmax_calc, units, extend, radius,
+                    backend, nthreads, name):
+        """Evaluate the gradient on a Clenshaw-Curtis grid."""
+        raise NotImplementedError('gradient() does not support the use '
+                                  'of complex CC grids.')

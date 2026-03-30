@@ -58,6 +58,8 @@ from .shgrid import DHRealGrid
 from .shgrid import DHComplexGrid
 from .shgrid import GLQRealGrid
 from .shgrid import GLQComplexGrid
+from .shgrid import CCRealGrid
+from .shgrid import CCComplexGrid
 
 from .shwindow import SHWindow
 from .shwindow import SHWindowCap
@@ -82,6 +84,9 @@ from .shtensor import SHMagTensor
 
 from .shgradient import SHGradient
 
+from .shvector import SHVectorGrid
+from .shvector import SHVectorCoeffs
+
 del shcoeffs  # noqa: F821
 del shgrid  # noqa: F821
 del shwindow  # noqa: F821
@@ -94,11 +99,14 @@ del shgeoid  # noqa: F821
 del shmagcoeffs  # noqa: F821
 del shmaggrid  # noqa: F821
 del shgradient  # noqa: F821
+del shvector  # noqa: F821
 
 # ---- Define __all__ for use with: from pyshtools import * ----
 __all__ = ['SHCoeffs', 'SHRealCoeffs', 'SHComplexCoeffs', 'SHGrid',
            'DHRealGrid', 'DHComplexGrid', 'GLQRealGrid', 'GLQComplexGrid',
+           'CCRealGrid', 'CCComplexGrid',
            'SHWindow', 'SHWindowCap', 'SHWindowMask', 'Slepian', 'SlepianCap',
            'SlepianMask', 'SlepianCoeffs', 'SHGravCoeffs', 'SHGravRealCoeffs',
            'SHGravGrid', 'SHGravTensor', 'SHGeoid', 'SHMagCoeffs',
-           'SHMagRealCoeffs', 'SHMagGrid', 'SHMagTensor', 'SHGradient']
+           'SHMagRealCoeffs', 'SHMagGrid', 'SHMagTensor', 'SHGradient',
+           'SHVectorGrid', 'SHVectorCoeffs']

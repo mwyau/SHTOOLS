@@ -8,6 +8,7 @@ python_sources = [
   'shgrid.py',
   'shmagcoeffs.py',
   'shmaggrid.py',
+  'shvector.py',
   'shtensor.py',
   'shwindow.py',
   'slepian.py',
