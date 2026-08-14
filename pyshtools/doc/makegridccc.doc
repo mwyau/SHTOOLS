@@ -1,0 +1,38 @@
+Create a complex Clenshaw-Curtis grid from spherical harmonic coefficients.
+
+Usage
+-----
+gridcc = MakeGridCCC(cilm, [lmax, norm, csphase, lmax_calc, extend])
+
+Returns
+-------
+gridcc : complex, dimension (lmax+2, 2*lmax+2+extend)
+    A Clenshaw-Curtis grid with both poles. If extend is True, a redundant
+    longitude column at 360 E is appended.
+
+Parameters
+----------
+cilm : complex, dimension (2, lmaxin+1, lmaxin+1)
+    Complex spherical harmonic coefficients. cilm[0, l, m] is the positive
+    order coefficient and cilm[1, l, m] is the negative order coefficient
+    before the conventional (-1)^m factor.
+lmax : optional, integer, default = lmaxin
+    The maximum spherical harmonic degree used to determine the output grid.
+norm : optional, integer, default = 1
+    1 = geodesy 4-pi normalized harmonics; 2 = Schmidt semi-normalized
+    harmonics; 3 = unnormalized harmonics; 4 = orthonormal harmonics.
+csphase : optional, integer, default = 1
+    1 = exclude the Condon-Shortley phase factor; -1 = include it.
+lmax_calc : optional, integer, default = lmax
+    The maximum spherical harmonic degree used to synthesize the grid. This
+    must be between zero and lmax.
+extend : optional, bool, default = False
+    If True, append the redundant longitude column at 360 E.
+
+Description
+-----------
+MakeGridCCC is the complex-coefficient counterpart of MakeGridCC and the
+inverse of SHExpandCCC. The non-extended grid has shape
+(lmax+2, 2*lmax+2), includes both poles, and has no Driscoll-Healy sampling
+parameter. For unnormalized associated Legendre functions, numerical accuracy
+is limited to about degree 15.

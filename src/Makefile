@@ -62,8 +62,10 @@ SRCSLAPACK = EigValSym.F95 EigValVecSym.F95 EigValVecSymTri.F95 \
 
 OBJSLAPACK := $(SRCSLAPACK:%.F95=%.o)
 
-SRCSFFTW = MakeGridDH.f95 MakeGridDHC.f95 MakeGridGLQ.f95 MakeGridGLQC.f95 \
-	SHExpandDH.f95 SHExpandDHC.f95 SHExpandGLQ.f95 SHExpandGLQC.f95 \
+SRCSFFTW = MakeGridDH.f95 MakeGridDHC.f95 MakeGridCC.f95 MakeGridCCC.f95 \
+	MakeGridGLQ.f95 MakeGridGLQC.f95 SHExpandDH.f95 SHExpandDHC.f95 \
+	CCTransformHelpers.f95 SHExpandCC.f95 SHExpandCCC.f95 \
+	SHExpandGLQ.f95 SHExpandGLQC.f95 \
 	MakeGravGradGridDH.f95 MakeGravGridDH.f95 MakeMagGridDH.f95 \
 	MakeMagGradGridDH.f95
 

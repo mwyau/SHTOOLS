@@ -203,6 +203,48 @@ module SHTOOLS
             integer(int32), intent(out), optional :: exitstatus
         end subroutine MakeGridDHC
 
+        subroutine SHExpandCC(gridcc, cilm, lmax, norm, csphase, lmax_calc, &
+                              exitstatus)
+            use iso_fortran_env, only: int32, dp=>real64
+            real(dp), intent(in) :: gridcc(:,:)
+            real(dp), intent(out) :: cilm(:,:,:)
+            integer(int32), intent(out) :: lmax
+            integer(int32), intent(in), optional :: norm, csphase, lmax_calc
+            integer(int32), intent(out), optional :: exitstatus
+        end subroutine SHExpandCC
+
+        subroutine MakeGridCC(gridcc, cilm, lmax, norm, csphase, lmax_calc, &
+                              extend, exitstatus)
+            use iso_fortran_env, only: int32, dp=>real64
+            real(dp), intent(out) :: gridcc(:,:)
+            real(dp), intent(in) :: cilm(:,:,:)
+            integer(int32), intent(in) :: lmax
+            integer(int32), intent(in), optional :: norm, csphase, lmax_calc, &
+                                                    extend
+            integer(int32), intent(out), optional :: exitstatus
+        end subroutine MakeGridCC
+
+        subroutine SHExpandCCC(gridcc, cilm, lmax, norm, csphase, lmax_calc, &
+                               exitstatus)
+            use iso_fortran_env, only: int32, dp=>real64
+            complex(dp), intent(in) :: gridcc(:,:)
+            complex(dp), intent(out) :: cilm(:,:,:)
+            integer(int32), intent(out) :: lmax
+            integer(int32), intent(in), optional :: norm, csphase, lmax_calc
+            integer(int32), intent(out), optional :: exitstatus
+        end subroutine SHExpandCCC
+
+        subroutine MakeGridCCC(gridcc, cilm, lmax, norm, csphase, lmax_calc, &
+                               extend, exitstatus)
+            use iso_fortran_env, only: int32, dp=>real64
+            complex(dp), intent(out) :: gridcc(:,:)
+            complex(dp), intent(in) :: cilm(:,:,:)
+            integer(int32), intent(in) :: lmax
+            integer(int32), intent(in), optional :: norm, csphase, lmax_calc, &
+                                                    extend
+            integer(int32), intent(out), optional :: exitstatus
+        end subroutine MakeGridCCC
+
         subroutine SHGLQ(lmax, zero, w, plx, norm, csphase, cnorm, exitstatus)
             use iso_fortran_env, only: int32, dp=>real64
             integer(int32), intent(in) :: lmax

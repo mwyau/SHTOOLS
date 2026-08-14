@@ -25,7 +25,8 @@ MDFILES = shtools.md planetsconstants.md plmbar.md plmbar_d1.md plbar.md \
 	plbar_d1.md plon.md plmon.md plmon_d1.md plon_d1.md plmschmidt.md \
 	plschmidt.md plmschmidt_d1.md plschmidt_d1.md plegendrea.md \
 	plegendrea_d1.md plegendre.md plegendre_d1.md plmindex.md shexpanddh.md \
-	makegriddh.md shexpanddhc.md makegriddhc.md shglq.md glqgridcoord.md \
+	makegriddh.md shexpanddhc.md makegriddhc.md shexpandcc.md makegridcc.md \
+	shexpandccc.md makegridccc.md shglq.md glqgridcoord.md \
 	shexpandglq.md makegridglq.md shexpandglqc.md makegridglqc.md \
 	shexpandlsq.md makegrid2d.md makegridpoint.md makegridpointc.md \
 	shmultiply.md shread.md  shread2.md shreadjpl.md shcilmtocindex.md \
@@ -57,7 +58,8 @@ MANFILES = $(addprefix $(MANDIR)/, shtools.3 planetsconstants.3 plmbar.3 \
 	plmbar_d1.3 plbar.3 plbar_d1.3 plon.3 plmon.3 plmon_d1.3 plon_d1.3 \
 	plmschmidt.3 plschmidt.3 plmschmidt_d1.3 plschmidt_d1.3 plegendrea.3 \
 	plegendrea_d1.3 plegendre.3 plegendre_d1.3 plmindex.3 shexpanddh.3 \
-	makegriddh.3 shexpanddhc.3 makegriddhc.3 glqgridcoord.3 shexpandglq.3 \
+	makegriddh.3 shexpanddhc.3 makegriddhc.3 shexpandcc.3 makegridcc.3 \
+	shexpandccc.3 makegridccc.3 glqgridcoord.3 shexpandglq.3 \
 	makegridglq.3 shexpandglqc.3 makegridglqc.3 shexpandlsq.3 makegrid2d.3 \
 	makegridpoint.3 makegridpointc.3 shmultiply.3 shread.3 shread2.3 \
 	shreadjpl.3 shcilmtocindex.3 shcindextocilm.3 shcilmtovector.3 \

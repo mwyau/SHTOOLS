@@ -325,6 +325,72 @@
                          exitstatus=exitstatus)
     end subroutine pyMakeGridDHC
 
+    subroutine pySHExpandCC(exitstatus,gridcc,cilm,lmax,norm,csphase, &
+                            lmax_calc,cilm_d0,cilm_d1,cilm_d2,gridcc_d0, &
+                            gridcc_d1)
+        use shtools, only: SHExpandCC
+        use ftypes
+        implicit none
+        integer(int32),intent(in) :: cilm_d0, cilm_d1, cilm_d2
+        integer(int32),intent(in) :: gridcc_d0, gridcc_d1
+        integer(int32),intent(out) :: exitstatus, lmax
+        real(dp),dimension(gridcc_d0,gridcc_d1),intent(in) :: gridcc
+        real(dp),dimension(cilm_d0,cilm_d1,cilm_d2),intent(out) :: cilm
+        integer(int32),intent(in) :: norm, csphase, lmax_calc
+        call SHExpandCC(gridcc,cilm,lmax,norm=norm,csphase=csphase, &
+                        lmax_calc=lmax_calc,exitstatus=exitstatus)
+    end subroutine pySHExpandCC
+
+    subroutine pyMakeGridCC(exitstatus,gridcc,cilm,lmax,norm,csphase, &
+                            lmax_calc,extend,cilm_d0,cilm_d1,cilm_d2, &
+                            gridcc_d0,gridcc_d1)
+        use shtools, only: MakeGridCC
+        use ftypes
+        implicit none
+        integer(int32),intent(in) :: cilm_d0, cilm_d1, cilm_d2
+        integer(int32),intent(in) :: gridcc_d0, gridcc_d1
+        integer(int32),intent(out) :: exitstatus
+        real(dp),dimension(gridcc_d0,gridcc_d1),intent(out) :: gridcc
+        real(dp),dimension(cilm_d0,cilm_d1,cilm_d2),intent(in) :: cilm
+        integer(int32),intent(in) :: lmax, norm, csphase, lmax_calc, extend
+        call MakeGridCC(gridcc,cilm,lmax,norm=norm,csphase=csphase, &
+                        lmax_calc=lmax_calc,extend=extend, &
+                        exitstatus=exitstatus)
+    end subroutine pyMakeGridCC
+
+    subroutine pySHExpandCCC(exitstatus,gridcc,cilm,lmax,norm,csphase, &
+                             lmax_calc,cilm_d0,cilm_d1,cilm_d2,gridcc_d0, &
+                             gridcc_d1)
+        use shtools, only: SHExpandCCC
+        use ftypes
+        implicit none
+        integer(int32),intent(in) :: cilm_d0, cilm_d1, cilm_d2
+        integer(int32),intent(in) :: gridcc_d0, gridcc_d1
+        integer(int32),intent(out) :: exitstatus, lmax
+        complex(dp),dimension(gridcc_d0,gridcc_d1),intent(in) :: gridcc
+        complex(dp),dimension(cilm_d0,cilm_d1,cilm_d2),intent(out) :: cilm
+        integer(int32),intent(in) :: norm, csphase, lmax_calc
+        call SHExpandCCC(gridcc,cilm,lmax,norm=norm,csphase=csphase, &
+                         lmax_calc=lmax_calc,exitstatus=exitstatus)
+    end subroutine pySHExpandCCC
+
+    subroutine pyMakeGridCCC(exitstatus,gridcc,cilm,lmax,norm,csphase, &
+                             lmax_calc,extend,cilm_d0,cilm_d1,cilm_d2, &
+                             gridcc_d0,gridcc_d1)
+        use shtools, only: MakeGridCCC
+        use ftypes
+        implicit none
+        integer(int32),intent(in) :: cilm_d0, cilm_d1, cilm_d2
+        integer(int32),intent(in) :: gridcc_d0, gridcc_d1
+        integer(int32),intent(out) :: exitstatus
+        complex(dp),dimension(gridcc_d0,gridcc_d1),intent(out) :: gridcc
+        complex(dp),dimension(cilm_d0,cilm_d1,cilm_d2),intent(in) :: cilm
+        integer(int32),intent(in) :: lmax, norm, csphase, lmax_calc, extend
+        call MakeGridCCC(gridcc,cilm,lmax,norm=norm,csphase=csphase, &
+                         lmax_calc=lmax_calc,extend=extend, &
+                         exitstatus=exitstatus)
+    end subroutine pyMakeGridCCC
+
     subroutine pyshglq(exitstatus,lmax,zero,w,zero_d0,w_d0)
         use shtools, only: SHGLQ
         use ftypes

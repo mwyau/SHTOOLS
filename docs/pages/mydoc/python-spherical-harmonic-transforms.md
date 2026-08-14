@@ -28,6 +28,15 @@ table:nth-of-type(n) th:nth-of-type(2) {
 | [MakeGridDHC](pymakegriddhc.html) | Create a 2D complex map from a set of complex spherical harmonic coefficients that conforms with *Driscoll and Healy*'s (1994) sampling theorem. |
 | [MakeGradientDH](pymakegradientdh.html) | Compute the gradient of a scalar function and return grids of the two horizontal components that conform with *Driscoll and Healy*'s (1994) sampling theorem. |
 
+## Clenshaw-Curtis grids
+
+| Function name | Description |
+| ------------- | ----------- |
+| [SHExpandCC](pyshexpandcc.html) | Expand a real Clenshaw-Curtis grid into spherical harmonics. |
+| [MakeGridCC](pymakegridcc.html) | Create a real Clenshaw-Curtis grid from spherical harmonic coefficients. |
+| [SHExpandCCC](pyshexpandccc.html) | Expand a complex Clenshaw-Curtis grid into complex spherical harmonics. |
+| [MakeGridCCC](pymakegridccc.html) | Create a complex Clenshaw-Curtis grid from complex spherical harmonic coefficients. |
+
 
 ## Gauss-Legendre quadrature grids
 

@@ -1,0 +1,40 @@
+Create a real Clenshaw-Curtis grid from spherical harmonic coefficients.
+
+Usage
+-----
+gridcc = MakeGridCC(cilm, [lmax, norm, csphase, lmax_calc, extend])
+
+Returns
+-------
+gridcc : float, dimension (lmax+2, 2*lmax+2+extend)
+    A Clenshaw-Curtis grid sampled at lmax+2 equally spaced latitude nodes
+    from 90 N through 90 S and 2*lmax+2 equally spaced longitude nodes from
+    0 E to less than 360 E. If extend is True, a redundant longitude column
+    at 360 E is appended.
+
+Parameters
+----------
+cilm : float, dimension (2, lmaxin+1, lmaxin+1)
+    The real spherical harmonic coefficients. cilm[0, l, m] and
+    cilm[1, l, m] are the cosine and sine coefficients, respectively.
+lmax : optional, integer, default = lmaxin
+    The maximum spherical harmonic degree used to determine the output grid.
+norm : optional, integer, default = 1
+    1 = geodesy 4-pi normalized harmonics; 2 = Schmidt semi-normalized
+    harmonics; 3 = unnormalized harmonics; 4 = orthonormal harmonics.
+csphase : optional, integer, default = 1
+    1 = exclude the Condon-Shortley phase factor; -1 = include it.
+lmax_calc : optional, integer, default = lmax
+    The maximum spherical harmonic degree used to synthesize the grid. This
+    must be between zero and lmax.
+extend : optional, bool, default = False
+    If True, append the redundant longitude column at 360 E. Both poles are
+    already included, so no latitude row is added.
+
+Description
+-----------
+MakeGridCC evaluates the associated Legendre functions at equally spaced
+latitude nodes and uses an FFT in longitude. It is the real counterpart of
+MakeGridCCC and the inverse of SHExpandCC. CC does not use the Driscoll-Healy
+sampling parameter. For unnormalized associated Legendre functions, numerical
+accuracy is limited to about degree 15.

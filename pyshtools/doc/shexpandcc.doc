@@ -1,0 +1,50 @@
+Expand a real Clenshaw-Curtis grid into spherical harmonics.
+
+Usage
+-----
+cilm = SHExpandCC(gridcc, [norm, csphase, lmax_calc])
+
+Returns
+-------
+cilm : float, dimension (2, lmax_calc+1, lmax_calc+1)
+    The real spherical harmonic coefficients. cilm[0, l, m] and
+    cilm[1, l, m] are the cosine and sine coefficients, respectively.
+
+Parameters
+----------
+gridcc : float, dimension (L+2, 2*L+2)
+    A non-extended Clenshaw-Curtis grid. The grid contains L+2 equally spaced
+    latitude nodes from 90 N through 90 S and both poles are included.
+norm : optional, integer, default = 1
+    1 = geodesy 4-pi normalized harmonics; 2 = Schmidt semi-normalized
+    harmonics; 3 = unnormalized harmonics; 4 = orthonormal harmonics.
+csphase : optional, integer, default = 1
+    1 = exclude the Condon-Shortley phase factor; -1 = include it.
+lmax_calc : optional, integer, default = L
+    The maximum spherical harmonic degree to recover. This must be between
+    zero and L, where L=nlat-2.
+
+Description
+-----------
+SHExpandCC uses FFTs in longitude, parity-correct spectral interpolation in
+colatitude, and direct Clenshaw-Curtis quadrature projection onto the
+associated Legendre basis. The full maximum recoverable degree is L=nlat-2.
+It retains both pole rows, is not a Driscoll-Healy transform, and does not use
+a least-squares solve. CC does not use the Driscoll-Healy sampling parameter.
+For unnormalized associated Legendre functions, numerical accuracy is limited
+to about degree 15.
+
+References
+----------
+Clenshaw, C. W., and A. R. Curtis, A method for numerical integration on an
+automatic computer, Numerische Mathematik, 2, 197-205, 1960,
+doi:10.1007/BF01386223.
+
+Waldvogel, J., Fast Construction of the Fejer and Clenshaw-Curtis Quadrature
+Rules, BIT Numerical Mathematics, 46, 195-202, 2006,
+doi:10.1007/s10543-006-0045-4.
+
+Holmes, S. A., and W. E. Featherstone, A unified approach to the Clenshaw
+summation and the recursive computation of very high degree and order
+normalised associated Legendre functions, Journal of Geodesy, 76, 279-299,
+2002, doi:10.1007/s00190-002-0216-2.

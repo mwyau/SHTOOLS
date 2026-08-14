@@ -318,6 +318,84 @@ python module _SHTOOLS
             integer(int32),optional,intent(in),depend(sampling,lmax,extend),intent(hide) :: griddh_d1 = sampling*2*(lmax+1)+extend
         end subroutine MakeGridDHC
 
+        subroutine SHExpandCC(exitstatus,gridcc,cilm,lmax,norm,csphase,lmax_calc,cilm_d0,cilm_d1,cilm_d2,gridcc_d0,gridcc_d1)
+            threadsafe
+            fortranname pyshexpandcc
+            integer, parameter :: dp = selected_real_kind(p=15)
+            integer, parameter :: int32 = selected_int_kind(9)
+            integer(int32),intent(out) :: exitstatus
+            real(dp),dimension(gridcc_d0,gridcc_d1),intent(in) :: gridcc
+            real(dp),dimension(cilm_d0,cilm_d1,cilm_d2),intent(out) :: cilm
+            integer(int32),intent(hide) :: lmax
+            integer(int32),optional,intent(in) :: norm = 1
+            integer(int32),optional,intent(in) :: csphase = 1
+            integer(int32),optional,intent(in),depend(gridcc_d0) :: lmax_calc = gridcc_d0-2
+            integer(int32),optional,intent(in),intent(hide) :: cilm_d0 = 2
+            integer(int32),optional,intent(in),depend(lmax_calc),intent(hide) :: cilm_d1 = lmax_calc+1
+            integer(int32),optional,intent(in),depend(lmax_calc),intent(hide) :: cilm_d2 = lmax_calc+1
+            integer(int32),optional,intent(in),depend(gridcc),intent(hide) :: gridcc_d0 = shape(gridcc,0)
+            integer(int32),optional,intent(in),depend(gridcc),intent(hide) :: gridcc_d1 = shape(gridcc,1)
+        end subroutine SHExpandCC
+
+        subroutine MakeGridCC(exitstatus,gridcc,cilm,lmax,norm,csphase,lmax_calc,extend,cilm_d0,cilm_d1,cilm_d2,gridcc_d0,gridcc_d1)
+            threadsafe
+            fortranname pymakegridcc
+            integer, parameter :: dp = selected_real_kind(p=15)
+            integer, parameter :: int32 = selected_int_kind(9)
+            integer(int32),intent(out) :: exitstatus
+            real(dp),dimension(gridcc_d0,gridcc_d1),intent(out) :: gridcc
+            real(dp),dimension(cilm_d0,cilm_d1,cilm_d2),intent(in) :: cilm
+            integer(int32),optional,intent(in),depend(cilm_d1) :: lmax = cilm_d1-1
+            integer(int32),optional,intent(in) :: norm = 1
+            integer(int32),optional,intent(in) :: csphase = 1
+            integer(int32),optional,intent(in),depend(lmax) :: lmax_calc = lmax
+            integer(int32),optional,intent(in) :: extend = 0
+            integer(int32),optional,intent(in),depend(cilm),intent(hide) :: cilm_d0 = shape(cilm,0)
+            integer(int32),optional,intent(in),depend(cilm),intent(hide) :: cilm_d1 = shape(cilm,1)
+            integer(int32),optional,intent(in),depend(cilm),intent(hide) :: cilm_d2 = shape(cilm,2)
+            integer(int32),optional,intent(in),depend(lmax,extend),intent(hide) :: gridcc_d0 = lmax+2
+            integer(int32),optional,intent(in),depend(lmax,extend),intent(hide) :: gridcc_d1 = 2*lmax+2+extend
+        end subroutine MakeGridCC
+
+        subroutine SHExpandCCC(exitstatus,gridcc,cilm,lmax,norm,csphase,lmax_calc,cilm_d0,cilm_d1,cilm_d2,gridcc_d0,gridcc_d1)
+            threadsafe
+            fortranname pyshexpandccc
+            integer, parameter :: dp = selected_real_kind(p=15)
+            integer, parameter :: int32 = selected_int_kind(9)
+            integer(int32),intent(out) :: exitstatus
+            complex(dp),dimension(gridcc_d0,gridcc_d1),intent(in) :: gridcc
+            complex(dp),dimension(cilm_d0,cilm_d1,cilm_d2),intent(out) :: cilm
+            integer(int32),intent(hide) :: lmax
+            integer(int32),optional,intent(in) :: norm = 1
+            integer(int32),optional,intent(in) :: csphase = 1
+            integer(int32),optional,intent(in),depend(gridcc_d0) :: lmax_calc = gridcc_d0-2
+            integer(int32),optional,intent(in) :: cilm_d0 = 2
+            integer(int32),optional,intent(in),depend(lmax_calc),intent(hide) :: cilm_d1 = lmax_calc+1
+            integer(int32),optional,intent(in),depend(lmax_calc),intent(hide) :: cilm_d2 = lmax_calc+1
+            integer(int32),optional,intent(in),depend(gridcc),intent(hide) :: gridcc_d0 = shape(gridcc,0)
+            integer(int32),optional,intent(in),depend(gridcc),intent(hide) :: gridcc_d1 = shape(gridcc,1)
+        end subroutine SHExpandCCC
+
+        subroutine MakeGridCCC(exitstatus,gridcc,cilm,lmax,norm,csphase,lmax_calc,extend,cilm_d0,cilm_d1,cilm_d2,gridcc_d0,gridcc_d1)
+            threadsafe
+            fortranname pymakegridccc
+            integer, parameter :: dp = selected_real_kind(p=15)
+            integer, parameter :: int32 = selected_int_kind(9)
+            integer(int32),intent(out) :: exitstatus
+            complex(dp),dimension(gridcc_d0,gridcc_d1),intent(out) :: gridcc
+            complex(dp),dimension(cilm_d0,cilm_d1,cilm_d2),intent(in) :: cilm
+            integer(int32),optional,intent(in),depend(cilm_d1) :: lmax = cilm_d1-1
+            integer(int32),optional,intent(in) :: norm = 1
+            integer(int32),optional,intent(in) :: csphase = 1
+            integer(int32),optional,intent(in),depend(lmax) :: lmax_calc = lmax
+            integer(int32),optional,intent(in) :: extend = 0
+            integer(int32),optional,intent(in),depend(cilm),intent(hide) :: cilm_d0 = shape(cilm,0)
+            integer(int32),optional,intent(in),depend(cilm),intent(hide) :: cilm_d1 = shape(cilm,1)
+            integer(int32),optional,intent(in),depend(cilm),intent(hide) :: cilm_d2 = shape(cilm,2)
+            integer(int32),optional,intent(in),depend(lmax,extend),intent(hide) :: gridcc_d0 = lmax+2
+            integer(int32),optional,intent(in),depend(lmax,extend),intent(hide) :: gridcc_d1 = 2*lmax+2+extend
+        end subroutine MakeGridCCC
+
         subroutine SHGLQ(exitstatus,lmax,zero,w,zero_d0,w_d0)
             threadsafe
             fortranname pyshglq

@@ -30,6 +30,10 @@ from .._SHTOOLS import SHExpandDH
 from .._SHTOOLS import MakeGridDH
 from .._SHTOOLS import SHExpandDHC
 from .._SHTOOLS import MakeGridDHC
+from .._SHTOOLS import SHExpandCC
+from .._SHTOOLS import MakeGridCC
+from .._SHTOOLS import SHExpandCCC
+from .._SHTOOLS import MakeGridCCC
 from .._SHTOOLS import SHGLQ
 from .._SHTOOLS import SHExpandGLQ
 from .._SHTOOLS import MakeGridGLQ
@@ -125,7 +129,8 @@ __all__ = ['PlmBar', 'PlmBar_d1', 'PlBar', 'PlBar_d1', 'PlmON', 'PlmON_d1',
            'PlON', 'PlON_d1', 'PlmSchmidt', 'PlmSchmidt_d1', 'PlSchmidt',
            'PlSchmidt_d1', 'PLegendreA', 'PLegendreA_d1', 'PLegendre',
            'PLegendre_d1', 'SHExpandDH', 'MakeGridDH', 'SHExpandDHC',
-           'MakeGridDHC', 'SHGLQ', 'SHExpandGLQ', 'MakeGridGLQ',
+           'MakeGridDHC', 'SHExpandCC', 'MakeGridCC', 'SHExpandCCC',
+           'MakeGridCCC', 'SHGLQ', 'SHExpandGLQ', 'MakeGridGLQ',
            'SHExpandGLQC', 'MakeGridGLQC', 'GLQGridCoord', 'SHExpandLSQ',
            'SHExpandLSQ_G', 'SHExpandWLSQ', 'SHExpandWLSQ_G', 'LSQ_G',
            'MakeGrid2D', 'MakeGridPoint', 'MakeGridPointC', 'SHMultiply',
