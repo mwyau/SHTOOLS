@@ -8,8 +8,8 @@ import numpy as _np
 try:
     import ducc0
 
-    major, minor, patch = ducc0.__version__.split(".")
-    if int(major) < 1 and int(minor) < 15:
+    version = tuple(int(part) for part in ducc0.__version__.split("."))
+    if version < (0, 33):
         raise RuntimeError
 except Exception:
     ducc0 = None
@@ -199,6 +199,35 @@ def _analyze_GLQ(map, lmax):
     return alm[0]
 
 
+def _synth_regular(alm, lmax, extend, out, geometry):
+    """Synthesize a CC, F1, or F2 grid."""
+    ducc0.sht.synthesis_2d(
+        alm=alm.reshape((1, -1)),
+        map=out[:, :out.shape[1] - extend].reshape(
+            (1, out.shape[0], out.shape[1] - extend)
+        ),
+        spin=0,
+        lmax=lmax,
+        geometry=geometry,
+        nthreads=nthreads,
+    )
+    if extend:
+        out[:, -1] = out[:, 0]
+    return out
+
+
+def _analyze_regular(map, lmax, geometry):
+    """Analyze a CC, F1, or F2 grid."""
+    alm = ducc0.sht.analysis_2d(
+        map=map.reshape((1, map.shape[0], map.shape[1])),
+        spin=0,
+        lmax=lmax,
+        geometry=geometry,
+        nthreads=nthreads,
+    )
+    return alm[0]
+
+
 def _ccilm2almr(cilm):
     lmax = cilm.shape[1] - 1
     alm = _np.empty((_nalm(lmax, lmax),), dtype=_np.complex128)
@@ -263,6 +292,20 @@ def _addImagpart(cilm, alm):
             cilm[1, m:, m].imag += tmp.real
         ofs += lmax + 1 - m
     return cilm
+
+
+def _scale_complex_unnorm_orders(alm, lmax, factor):
+    """Convert DUCC's unnormalized m>0 scaling for complex coefficients.
+
+    The real-valued and complex SHTOOLS coefficient layouts differ by sqrt(2)
+    away from m=0.  DUCC's scalar normalization helper accounts for the real
+    layout; complex unnormalized CC transforms need this additional factor.
+    """
+    ofs = lmax + 1
+    for m in range(1, lmax + 1):
+        alm[ofs: ofs + lmax + 1 - m] *= factor
+        ofs += lmax + 1 - m
+    return alm
 
 
 def _prep_lmax(lmax, lmax_calc, cilm):
@@ -654,6 +697,98 @@ def MakeGridDHC(
     alm = _apply_norm(alm, lmax_calc, norm, csphase, False)
     _synthesize_DH(alm, lmax_calc, extend, res.real)
     return res
+
+
+def _regular_nlat(geometry, lmax):
+    if geometry == 'CC':
+        return lmax + 2
+    if geometry == 'F1':
+        return lmax + 1
+    if geometry == 'F2':
+        return 2 * lmax + 1
+    raise ValueError("Unknown geometry: {}".format(geometry))
+
+
+def _regular_lmax(geometry, nlat):
+    if geometry == 'CC' and nlat >= 2:
+        return nlat - 2
+    if geometry == 'F1' and nlat >= 1:
+        return nlat - 1
+    if geometry == 'F2' and nlat >= 1 and nlat % 2:
+        return (nlat - 1) // 2
+    raise ValueError("Invalid {} latitude count: {}".format(geometry, nlat))
+
+
+def MakeGridRegular(cilm, geometry, lmax=None, norm=1, csphase=1, lmax_calc=None,
+               extend=False):
+    """Synthesize a real CC, F1, or F2 grid from coefficients."""
+    lmax, lmax_calc, cilm = _prep_lmax(lmax, lmax_calc, cilm)
+    alm = _make_alm(cilm, lmax_calc, norm, csphase)
+    out = _np.empty((_regular_nlat(geometry, lmax),
+                     2 * lmax + 2 + extend))
+    return _synth_regular(alm, lmax_calc, extend, out, geometry)
+
+
+def MakeGridRegularC(cilm, geometry, lmax=None, norm=1, csphase=1, lmax_calc=None,
+                extend=False):
+    """Synthesize a complex CC, F1, or F2 grid."""
+    lmax, lmax_calc, cilm = _prep_lmax(lmax, lmax_calc, cilm)
+    out = _np.empty((_regular_nlat(geometry, lmax),
+                     2 * lmax + 2 + extend), dtype=_np.complex128)
+    alm = _ccilm2almi(cilm)
+    alm = _apply_norm(alm, lmax_calc, norm, csphase, False)
+    if norm == 3:
+        _scale_complex_unnorm_orders(alm, lmax_calc, _np.sqrt(2.0))
+    _synth_regular(alm, lmax_calc, extend, out.imag, geometry)
+    alm = _ccilm2almr(cilm)
+    alm = _apply_norm(alm, lmax_calc, norm, csphase, False)
+    if norm == 3:
+        _scale_complex_unnorm_orders(alm, lmax_calc, _np.sqrt(2.0))
+    _synth_regular(alm, lmax_calc, extend, out.real, geometry)
+    return out
+
+
+def SHExpandRegular(gridmap, geometry, norm=1, csphase=1, lmax_calc=None):
+    """Analyze a real CC, F1, or F2 grid at its geometry bandwidth."""
+    gridmap = _fixdtype(gridmap)
+    nlat, nlon = gridmap.shape
+    lmax = _regular_lmax(geometry, nlat)
+    if nlon != 2 * (lmax + 1):
+        raise ValueError("{} longitude count mismatch".format(geometry))
+    if lmax_calc is None:
+        lmax_calc = lmax
+    if lmax_calc < 0 or lmax_calc > lmax:
+        raise RuntimeError("lmax_calc must be between zero and lmax")
+    # Analyze at the grid bandwidth before truncation so DUCC interprets
+    # the latitude geometry correctly.
+    alm = _analyze_regular(gridmap, lmax, geometry)
+    cilm = _extract_alm(alm, lmax, norm, csphase)
+    return cilm[:, :lmax_calc + 1, :lmax_calc + 1]
+
+
+def SHExpandRegularC(gridmap, geometry, norm=1, csphase=1, lmax_calc=None):
+    """Analyze a complex CC, F1, or F2 grid."""
+    nlat, nlon = gridmap.shape
+    lmax = _regular_lmax(geometry, nlat)
+    if nlon != 2 * (lmax + 1):
+        raise ValueError("{} longitude count mismatch".format(geometry))
+    if lmax_calc is None:
+        lmax_calc = lmax
+    if lmax_calc < 0 or lmax_calc > lmax:
+        raise RuntimeError("lmax_calc must be between zero and lmax")
+    out = _np.zeros((2, lmax + 1, lmax + 1),
+                    dtype=_np.complex128)
+    alm = _analyze_regular(_fixdtype(gridmap.real), lmax, geometry)
+    alm = _apply_norm(alm, lmax, norm, csphase, True)
+    if norm == 3:
+        _scale_complex_unnorm_orders(alm, lmax, 1.0/_np.sqrt(2.0))
+    _addRealpart(out, alm)
+    alm = _analyze_regular(_fixdtype(gridmap.imag), lmax, geometry)
+    alm = _apply_norm(alm, lmax, norm, csphase, True)
+    if norm == 3:
+        _scale_complex_unnorm_orders(alm, lmax, 1.0/_np.sqrt(2.0))
+    _addImagpart(out, alm)
+    return out[:, :lmax_calc + 1, :lmax_calc + 1]
 
 
 def SHExpandDH(griddh, norm=1, sampling=1, csphase=1, lmax_calc=None):
